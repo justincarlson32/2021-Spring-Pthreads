@@ -12,16 +12,26 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+struct WorkerNode{
+  struct WorkerNode *next;
+} WorkerNode;
+
+struct WorkerQueue {
+  struct WorkerNode *headNode;
+} WorkerQueue;
 
 
 /* Things that Need to be Done
 
--- Change Main to accept the Correct number of Args
--- Create a Linked List and Node Class for task tracking (C does not allow classes)
 -- Create a primitive to enqueue tasks
 -- Create a primitive to dequeue tasks
 
 This is all the objectives for now; will require A L O T more
+
+Completed:
+-- Change Main to accept the Correct number of Args
+-- Create a Linked List and Node Class for task tracking (C does not allow classes)
+
 
 
 */

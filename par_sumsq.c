@@ -8,7 +8,12 @@
 
  /* Things that Need to be Done
 
- -- do Pthread nonsense (probs create and a bunch of low level pthread types)
+ -- implement int pthread_create(pthread_t *restrict thread, const pthread_attr_t *restrict attr, void *(*start_routine)(void *), void *restrict arg)
+    from manual thread is passed as an empty object to be filled by the function,
+    from manual attr is a bunch of low level scope stuff that should just be passed as NULL;
+    the routine should is a function pointer to the task that will be performed
+    the args part is the args you want to pass to the thread
+
 
  This is all the objectives for now; will require A L O T more
 

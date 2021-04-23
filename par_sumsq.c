@@ -6,6 +6,24 @@
  * Compile with --std=c99
  */
 
+ /* Things that Need to be Done
+
+ -- Create a primitive to dequeue tasks
+ -- do Pthread nonsense (probs create and a bunch of low level pthread types)
+
+ This is all the objectives for now; will require A L O T more
+
+ Completed:
+ -- Change Main to accept the Correct number of Args
+ -- Create a Linked List and Node Class for task tracking (C does not allow classes)
+ -- Create a primitive to dequeue tasks
+
+
+
+
+ */
+
+
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -13,31 +31,13 @@
 #include <unistd.h>
 
 typedef struct WorkerNode{
-  struct WorkerNode *next;
+  struct WorkerNode *nextNode;
   long value;
 } WorkerNode;
 
 typedef struct WorkerQueue {
   WorkerNode *headNode;
 } WorkerQueue;
-
-
-/* Things that Need to be Done
-
--- Create a primitive to dequeue tasks
--- do Pthread nonsense (probs create and a bunch of low level pthread types)
-
-This is all the objectives for now; will require A L O T more
-
-Completed:
--- Change Main to accept the Correct number of Args
--- Create a Linked List and Node Class for task tracking (C does not allow classes)
--- Create a primitive to dequeue tasks
-
-
-
-
-*/
 
 
 // aggregate variables
@@ -50,6 +50,8 @@ bool done = false;
 // function prototypes
 void calculate_square(long number);
 void enqueueTask(volatile WorkerQueue *queue, long number);
+void dequeueTask(volatile WorkerQueue *queue);
+
 
 /*
  * update global aggregate variables given a number
@@ -95,7 +97,14 @@ int main(int argc, char* argv[])
   queue->headNode = NULL;
 
   enqueueTask(queue, 15);
-  printf("%ld \n", queue->headNode->value);
+  printf("enqueued: %ld \n", queue->headNode->value);
+
+  enqueueTask(queue, 12);
+  printf("enqueued: %ld \n", queue->headNode->nextNode->value);
+
+  dequeueTask(queue);
+
+  printf("dequueed and head is now: %ld \n", queue->headNode->value);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work
@@ -128,10 +137,17 @@ void enqueueTask(volatile WorkerQueue *queue, long number){
 
   WorkerNode *curNode = queue->headNode;
 
-  while(curNode->next)
-    curNode = curNode->next;
+  while(curNode->nextNode)
+    curNode = curNode->nextNode;
 
-  curNode->next = newNode;
+  curNode->nextNode = newNode;
+}
 
+void dequeueTask(volatile WorkerQueue *queue){
+
+  WorkerNode *curNode = queue->headNode;
+
+  if (curNode)
+    queue->headNode = curNode->nextNode;
 
 }

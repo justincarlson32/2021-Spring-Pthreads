@@ -14,6 +14,7 @@
 
 struct WorkerNode{
   struct WorkerNode *next;
+  int value;
 } WorkerNode;
 
 struct WorkerQueue {
@@ -80,12 +81,22 @@ int main(int argc, char* argv[])
     printf("Usage: par_sumsq <infile> <number of workers>\n" );
     exit(EXIT_FAILURE);
   }
+
   char *fn = argv[1];
 
-  // load numbers and add them to the queue
   FILE* fin = fopen(fn, "r");
   char action;
   long num;
+
+  volatile struct WorkerQueue *queue = (struct WorkerQueue *) malloc(sizeof(struct WorkerQueue)); // gotta love c's lack of new :))))
+  queue->headNode = NULL;
+
+  struct WorkerNode *testNode = (struct WorkerNode *) malloc(sizeof(struct WorkerNode));
+  testNode->value = 10;
+
+  queue->headNode = testNode;
+
+  printf("%d \n", queue->headNode->value);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work

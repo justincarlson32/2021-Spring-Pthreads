@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 
 typedef struct WorkerNode{
   struct WorkerNode *nextNode;
@@ -56,6 +57,7 @@ bool done = false;
 void calculate_square(long number);
 void enqueueTask(volatile WorkerQueue *queue, long number);
 void dequeueTask(volatile WorkerQueue *queue);
+void workerFunction(volatile WorkerQueue *queue);
 
 
 /*
@@ -101,15 +103,9 @@ int main(int argc, char* argv[])
   volatile WorkerQueue *queue = (struct WorkerQueue *) malloc(sizeof(struct WorkerQueue)); // gotta love c's lack of new :))))
   queue->headNode = NULL;
 
-  enqueueTask(queue, 15);
-  printf("enqueued: %ld \n", queue->headNode->value);
+  pthread_t worker;
 
-  enqueueTask(queue, 12);
-  printf("enqueued: %ld \n", queue->headNode->nextNode->value);
-
-  dequeueTask(queue);
-
-  printf("dequueed and head is now: %ld \n", queue->headNode->value);
+  pthread_create(&worker, NULL, workerFunction, queue);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work
@@ -156,4 +152,8 @@ void dequeueTask(volatile WorkerQueue *queue){
   if (curNode)
     queue->headNode = curNode->nextNode;
 
+}
+
+void workerFunction(volatile WorkerQueue *queue){
+  printf("%s\n", "we have successfully created a function pthread");
 }

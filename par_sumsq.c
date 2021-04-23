@@ -8,7 +8,6 @@
 
  /* Things that Need to be Done
 
- -- Create a primitive to dequeue tasks
  -- do Pthread nonsense (probs create and a bunch of low level pthread types)
 
  This is all the objectives for now; will require A L O T more
@@ -16,6 +15,7 @@
  Completed:
  -- Change Main to accept the Correct number of Args
  -- Create a Linked List and Node Class for task tracking (C does not allow classes)
+ -- Create a primitive to dequeue tasks
  -- Create a primitive to dequeue tasks
 
 
@@ -129,6 +129,7 @@ void enqueueTask(volatile WorkerQueue *queue, long number){
 
   WorkerNode *newNode = (WorkerNode *) malloc(sizeof(struct WorkerNode));
   newNode->value = number;
+  newNode->nextNode = NULL;
 
   if (!queue->headNode){
     queue->headNode = newNode;

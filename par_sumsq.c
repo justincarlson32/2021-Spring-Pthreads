@@ -66,8 +66,8 @@ void calculate_square(long number)
 int main(int argc, char* argv[])
 {
   // check and parse command line options
-  if (argc != 2) {
-    printf("Usage: sumsq <infile>\n");
+  if (argc != 3) {
+    printf("Usage: par_sumsq <infile> <number of workers>\n" );
     exit(EXIT_FAILURE);
   }
   char *fn = argv[1];

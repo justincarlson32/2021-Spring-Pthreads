@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 
   pthread_t worker;
 
-  pthread_create(&worker, NULL, workerFunction, queue);
+  pthread_create(&worker, NULL, workerFunction, (void *)queue);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work

@@ -12,26 +12,28 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-struct WorkerNode{
+typedef struct WorkerNode{
   struct WorkerNode *next;
-  int value;
+  long value;
 } WorkerNode;
 
-struct WorkerQueue {
-  struct WorkerNode *headNode;
+typedef struct WorkerQueue {
+  WorkerNode *headNode;
 } WorkerQueue;
 
 
 /* Things that Need to be Done
 
--- Create a primitive to enqueue tasks
 -- Create a primitive to dequeue tasks
+-- do Pthread nonsense (probs create and a bunch of low level pthread types)
 
 This is all the objectives for now; will require A L O T more
 
 Completed:
 -- Change Main to accept the Correct number of Args
 -- Create a Linked List and Node Class for task tracking (C does not allow classes)
+-- Create a primitive to dequeue tasks
+
 
 
 
@@ -47,6 +49,7 @@ bool done = false;
 
 // function prototypes
 void calculate_square(long number);
+void enqueueTask(volatile WorkerQueue *queue, long number);
 
 /*
  * update global aggregate variables given a number
@@ -88,15 +91,11 @@ int main(int argc, char* argv[])
   char action;
   long num;
 
-  volatile struct WorkerQueue *queue = (struct WorkerQueue *) malloc(sizeof(struct WorkerQueue)); // gotta love c's lack of new :))))
+  volatile WorkerQueue *queue = (struct WorkerQueue *) malloc(sizeof(struct WorkerQueue)); // gotta love c's lack of new :))))
   queue->headNode = NULL;
 
-  struct WorkerNode *testNode = (struct WorkerNode *) malloc(sizeof(struct WorkerNode));
-  testNode->value = 10;
-
-  queue->headNode = testNode;
-
-  printf("%d \n", queue->headNode->value);
+  enqueueTask(queue, 15);
+  printf("%ld \n", queue->headNode->value);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work
@@ -115,4 +114,24 @@ int main(int argc, char* argv[])
 
   // clean up and return
   return (EXIT_SUCCESS);
+}
+
+void enqueueTask(volatile WorkerQueue *queue, long number){
+
+  WorkerNode *newNode = (WorkerNode *) malloc(sizeof(struct WorkerNode));
+  newNode->value = number;
+
+  if (!queue->headNode){
+    queue->headNode = newNode;
+    return;
+  }
+
+  WorkerNode *curNode = queue->headNode;
+
+  while(curNode->next)
+    curNode = curNode->next;
+
+  curNode->next = newNode;
+
+
 }

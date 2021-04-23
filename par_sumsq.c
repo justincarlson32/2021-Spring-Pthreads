@@ -8,11 +8,7 @@
 
  /* Things that Need to be Done
 
- -- implement int pthread_create(pthread_t *restrict thread, const pthread_attr_t *restrict attr, void *(*start_routine)(void *), void *restrict arg)
-    from manual thread is passed as an empty object to be filled by the function,
-    from manual attr is a bunch of low level scope stuff that should just be passed as NULL;
-    the routine should is a function pointer to the task that will be performed
-    the args part is the args you want to pass to the thread
+ -- finish things up for 1 worker, things are about to get A L O T worse with multiple threads lol
 
 
  This is all the objectives for now; will require A L O T more
@@ -23,6 +19,11 @@
  -- Create a primitive to dequeue tasks
  -- Create a primitive to dequeue tasks
 
+ -- implement int pthread_create(pthread_t *restrict thread, const pthread_attr_t *restrict attr, void *(*start_routine)(void *), void *restrict arg)
+    from manual thread is passed as an empty object to be filled by the function,
+    from manual attr is a bunch of low level scope stuff that should just be passed as NULL;
+    the routine should is a function pointer to the task that will be performed
+    the args part is the args you want to pass to the thread
 
 
 
@@ -57,7 +58,7 @@ bool done = false;
 void calculate_square(long number);
 void enqueueTask(volatile WorkerQueue *queue, long number);
 void dequeueTask(volatile WorkerQueue *queue);
-void workerFunction(volatile WorkerQueue *queue);
+void workerFunction(void *queue);
 
 
 /*
@@ -104,12 +105,12 @@ int main(int argc, char* argv[])
   queue->headNode = NULL;
 
   pthread_t worker;
-
-  pthread_create(&worker, NULL, workerFunction, (void *)queue);
+  pthread_create(&worker, NULL, (void * (*)(void *))&workerFunction, (void *)queue);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work
-      calculate_square(num);
+      enqueueTask(queue, num);
+      //calculate_square(num);
     } else if (action == 'w') {     // wait, nothing new happening
       sleep(num);
     } else {
@@ -154,6 +155,12 @@ void dequeueTask(volatile WorkerQueue *queue){
 
 }
 
-void workerFunction(volatile WorkerQueue *queue){
+void workerFunction(void *queueArg){
   printf("%s\n", "we have successfully created a function pthread");
+
+  WorkerQueue *queue = (WorkerQueue *)queueArg;
+
+  calculate_square(queue->headNode->value);
+
+  dequeueTask(queue);
 }

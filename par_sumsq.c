@@ -125,9 +125,8 @@ int main(int argc, char* argv[])
 
   pthread_t *workers = (pthread_t *)malloc(sizeof(pthread_t)*numberOfWorkers);
 
-  for (int i = 0; i < numberOfWorkers; i++){
+  for (int i = 0; i < numberOfWorkers; i++{
       pthread_create(&workers[i], NULL, (void * (*)(void *))workerFunction, (void *)queue);
-  }
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work

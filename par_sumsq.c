@@ -64,7 +64,8 @@ volatile bool done = false;
 // function prototypes
 void calculate_square(long number);
 void enqueueTask(volatile WorkerQueue *queue, long number);
-long dequeueTask(volatile WorkerQueue *queue);
+void dequeueTask(volatile WorkerQueue *queue);
+long valueFromNode(WorkerNode *node);
 void *workerFunction(void *queue);
 
 void printQueue(volatile WorkerQueue *queue);
@@ -125,7 +126,7 @@ int main(int argc, char* argv[])
 
   pthread_t *workers = (pthread_t *)malloc(sizeof(pthread_t)*numberOfWorkers);
 
-  for (int i = 0; i < numberOfWorkers; i++{
+  for (int i = 0; i < numberOfWorkers; i++)
       pthread_create(&workers[i], NULL, (void * (*)(void *))workerFunction, (void *)queue);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
@@ -180,15 +181,21 @@ void enqueueTask(volatile WorkerQueue *queue, long number){
   curNode->nextNode = newNode;
 }
 
-long dequeueTask(volatile WorkerQueue *queue){
+void dequeueTask(volatile WorkerQueue *queue){
   WorkerNode *curNode = queue->headNode;
 
   if (curNode)
     queue->headNode = curNode->nextNode;
-  else
-    return 0;
+}
 
-  long returnVal = curNode->value;
+long valueFromNode(WorkerNode *node){
+
+  long returnVal = 0;
+
+  if (node)
+    returnVal = node->value;
+  else
+    return returnVal;
 
   return returnVal;
 }
@@ -208,7 +215,8 @@ void *workerFunction(void *queueArg){
        break;
     }
 
-    long value = dequeueTask(queue);
+    long value = valueFromNode(queue->headNode);
+    dequeueTask(queue);
     pthread_mutex_unlock(&queueProtector);
     calculate_square(value);
   }

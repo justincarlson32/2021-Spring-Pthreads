@@ -26,10 +26,7 @@
  -- pthread_mutex_lock(pthread_mutex_t *mutex) need one of these for task queue and aggregate
  -- things are about to get A L O T worse with multiple threads lol
 
-
-
  */
-
 
 #include <limits.h>
 #include <stdbool.h>
@@ -49,7 +46,6 @@ typedef struct WorkerQueue {
 
 
 // thread nonsese variables
-
 pthread_mutex_t aggregateProtector, queueProtector;
 pthread_cond_t conditionInit;
 

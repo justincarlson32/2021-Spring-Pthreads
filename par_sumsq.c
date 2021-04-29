@@ -8,8 +8,6 @@
 
  /* Things that Need to be Done
 
- -- things are about to get A L O T worse with multiple threads lol
-
 
  This is all the objectives for now; will require A L O T more
 
@@ -26,6 +24,7 @@
     the args part is the args you want to pass to the thread
 
  -- pthread_mutex_lock(pthread_mutex_t *mutex) need one of these for task queue and aggregate
+ -- things are about to get A L O T worse with multiple threads lol
 
 
 

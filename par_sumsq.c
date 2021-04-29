@@ -194,8 +194,6 @@ long valueFromNode(WorkerNode *node){
 
   if (node)
     returnVal = node->value;
-  else
-    return returnVal;
 
   return returnVal;
 }

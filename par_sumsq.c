@@ -210,7 +210,7 @@ void *workerFunction(){
   while(!done){
     pthread_mutex_lock(&queueProtector);
 
-    while(pthread_cond_wait(&conditionInit, &queueProtector) != 0 && !queue->headNode && !done);
+    while(pthread_cond_wait(&conditionInit, &queueProtector) != 0);
 
     if (done){
        pthread_mutex_unlock(&queueProtector);

@@ -9,8 +9,6 @@
  /* Things that Need to be Done
 
 
- This is all the objectives for now; will require A L O T more
-
  Completed:
  -- Change Main to accept the Correct number of Args
  -- Create a Linked List and Node Class for task tracking (C does not allow classes)
@@ -58,13 +56,15 @@ volatile bool done = false;
 
 // function prototypes
 void calculate_square(long number);
-void enqueueTask(volatile WorkerQueue *queue, long number);
-void dequeueTask(volatile WorkerQueue *queue);
+void enqueueTask(long number);
+void dequeueTask();
 long valueFromNode(WorkerNode *node);
-void *workerFunction(void *queue);
+void *workerFunction();
 
-void printQueue(volatile WorkerQueue *queue);
+void printQueue(queue);
 
+//global variables
+volatile WorkerQueue *queue;
 
 /*
  * update global aggregate variables given a number
@@ -114,23 +114,29 @@ int main(int argc, char* argv[])
   pthread_mutex_init(&queueProtector, NULL);
   pthread_mutex_init(&aggregateProtector, NULL);
 
-  volatile WorkerQueue *queue = (struct WorkerQueue *) malloc(sizeof(struct WorkerQueue)); // gotta love c's lack of new :))))
+  queue = (struct WorkerQueue *)malloc(sizeof(struct WorkerQueue)); // gotta love c's lack of new :))))
   queue->headNode = NULL;
 
-  int numberOfWorkers = atoi(argv[2]);
+  int numberOfWorkers = atoi(argv[2]); // user specified amount of threads
 
-  pthread_t *workers = (pthread_t *)malloc(sizeof(pthread_t)*numberOfWorkers);
+  pthread_t *workers = (pthread_t *)malloc(sizeof(pthread_t)*numberOfWorkers); // allocating ample amount of memeory for all workers
 
-  for (int i = 0; i < numberOfWorkers; i++)
+  for (int i = 0; i < numberOfWorkers; i++) // creating amount of threads specified by user
       pthread_create(&workers[i], NULL, (void * (*)(void *))workerFunction, (void *)queue);
 
   while (fscanf(fin, "%c %ld\n", &action, &num) == 2) {
     if (action == 'p') {            // process, do some work
-      pthread_mutex_lock(&queueProtector);
-      enqueueTask(queue, num);
-      pthread_cond_signal(&conditionInit);
-      pthread_mutex_unlock(&queueProtector);
-    } else if (action == 'w') {     // wait, nothing new happening
+      pthread_mutex_lock(&queueProtector); //making sure threads cannot mutate the queue while adding new operations
+      enqueueTask(num); // enqueuing taks with number: num
+      pthread_mutex_unlock(&queueProtector); // allowing queue to be mutated by working threads
+
+      pthread_cond_signal(&conditionInit); //allowing a worker to do work
+
+      while (queue->headNode){ // allow all workers to work until the queue is empty
+        pthread_cond_signal(&conditionInit);
+      }
+
+    } else if (action == 'w') {
       sleep(num);
     } else {
       printf("ERROR: Unrecognized action: '%c'\n", action);
@@ -140,13 +146,15 @@ int main(int argc, char* argv[])
 
   fclose(fin);
 
-  while (queue->headNode){}
+  //ensuring queue is actually empty before marking actions as complete
+  while (queue->headNode);
 
   done = true;
-  pthread_mutex_lock(&queueProtector);
-  pthread_cond_broadcast(&conditionInit);
-  pthread_mutex_unlock(&queueProtector);
 
+  // allow all available threads to work
+  pthread_cond_broadcast(&conditionInit);
+
+  //killing threads
   for (int i = 0; i < numberOfWorkers; i++)
     pthread_join(workers[i], NULL);
 
@@ -157,7 +165,8 @@ int main(int argc, char* argv[])
   return (EXIT_SUCCESS);
 }
 
-void enqueueTask(volatile WorkerQueue *queue, long number){
+// add a task to the queue with the number specified by arg
+void enqueueTask(long number){
 
   WorkerNode *newNode = (WorkerNode *) malloc(sizeof(struct WorkerNode));
   newNode->value = number;
@@ -176,13 +185,15 @@ void enqueueTask(volatile WorkerQueue *queue, long number){
   curNode->nextNode = newNode;
 }
 
-void dequeueTask(volatile WorkerQueue *queue){
+// remove headNode of the worker queue
+void dequeueTask(){
   WorkerNode *curNode = queue->headNode;
 
   if (curNode)
     queue->headNode = curNode->nextNode;
 }
 
+//get value from node so it can be copied to stack and not removed by dump collection
 long valueFromNode(WorkerNode *node){
 
   long returnVal = 0;
@@ -193,19 +204,17 @@ long valueFromNode(WorkerNode *node){
   return returnVal;
 }
 
-void *workerFunction(void *queueArg){
+// pthread worker routine that will be used by all threads
+void *workerFunction(){
 
-  WorkerQueue *queue = (WorkerQueue *)queueArg;
   while(!done){
     pthread_mutex_lock(&queueProtector);
 
-    while(!done && !(queue->headNode)){
-      pthread_cond_wait(&conditionInit, &queueProtector);
-    }
+    while(pthread_cond_wait(&conditionInit, &queueProtector) != 0 && !queue->headNode && !done);
 
     if (done){
        pthread_mutex_unlock(&queueProtector);
-       break;
+       return;
     }
 
     long value = valueFromNode(queue->headNode);
@@ -214,10 +223,11 @@ void *workerFunction(void *queueArg){
     calculate_square(value);
   }
 
-  return EXIT_SUCCESS;
+  return;
 }
 
-void printQueue(volatile WorkerQueue *queue){
+// used for debugging to ensure proper functionality
+void printQueue(){
   WorkerNode *curNode = queue->headNode;
   int i = 0;
 

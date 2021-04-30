@@ -111,6 +111,7 @@ int main(int argc, char* argv[])
   char action;
   long num;
 
+  //initializing protectors and wait conditions
   pthread_cond_init(&conditionInit, NULL);
   pthread_mutex_init(&queueProtector, NULL);
   pthread_mutex_init(&aggregateProtector, NULL);

@@ -8,6 +8,7 @@
 
  /* Things that Need to be Done
 
+ -- all taks perform the almost Correct amount of shit
 
  Completed:
  -- Change Main to accept the Correct number of Args

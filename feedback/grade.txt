@@ -1,0 +1,112 @@
+
+YOUR GRADE (out of 220): 200
+
+
+
+Below is latest output from when I run the test makefile on your
+submission.
+
+See the README file for general grading comments.
+
+-----------------
+
+gcc -g -O2 --std=c99 -Wall -o 64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq 64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c -lpthread
+64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c:65:1: warning: parameter names (without types) in function declaration
+ void printQueue(queue);
+ ^~~~
+64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c: In function ‘workerFunction’:
+64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c:219:8: warning: ‘return’ with no value, in function returning non-void
+        return;
+        ^~~~~~
+64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c:210:7: note: declared here
+ void *workerFunction(){
+       ^~~~~~~~~~~~~~
+64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c:228:3: warning: ‘return’ with no value, in function returning non-void
+   return;
+   ^~~~~~
+64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq.c:210:7: note: declared here
+ void *workerFunction(){
+       ^~~~~~~~~~~~~~
+==== Test 01 (baseline) ====
+>>>> Result should be 14 2 1 3 in all cases
+>>>> ... with 1 worker 'real' time should be ~7 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-01.txt 1 2>&1
+14 2 1 3
+real 7.00
+user 2.00
+sys 0.00
+>>>> ... with 2 workers 'real' time should be ~5 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-01.txt 2 2>&1
+14 2 0 3
+real 5.00
+user 0.00
+sys 0.00
+>>>> ... with 6 workers 'real' time should be ~5 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-01.txt 6 2>&1
+14 2 0 3
+real 5.00
+user 0.00
+sys 0.00
+==== Test 02 (a little more stress) ====
+>>>> Result should be 6 6 1 1 in all cases
+>>>> ... with 1 worker 'real' time should be ~6 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-02.txt 1 2>&1
+6 6 1 1
+real 7.00
+user 4.00
+sys 0.00
+>>>> ... with 2 workers 'real' time should be ~4 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-02.txt 2 2>&1
+6 6 1 1
+real 4.00
+user 1.00
+sys 0.00
+>>>> ... with 6 workers 'real' time should be ~3 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-02.txt 6 2>&1
+6 6 0 1
+real 3.00
+user 0.00
+sys 0.00
+==== Test 03 (lots of parallelism) ====
+>>>> Result should be 110 6 1 5 in all cases
+>>>> ... with 3 workers 'real' time should be ~12 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-03.txt 3 2>&1
+110 6 1 5
+real 12.00
+user 7.00
+sys 0.00
+>>>> ... with 5 workers 'real' time should be ~9 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-03.txt 5 2>&1
+110 6 1 5
+real 9.00
+user 4.00
+sys 0.00
+>>>> ... with 12 workers 'real' time should be ~5 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-03.txt 12 2>&1
+110 6 0 5
+real 5.00
+user 0.00
+sys 0.00
+==== Test 04 (a little funky) ====
+>>>> Result should be 5 5 1 1 in all cases
+>>>> ... with 1 workers 'real' time should be ~10 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-04.txt 1 2>&1
+5 5 1 1
+real 10.00
+user 0.00
+sys 0.00
+>>>> ... with 4 workers 'real' time should also be ~10 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-04.txt 4 2>&1
+5 5 0 1
+real 10.00
+user 0.00
+sys 0.00
+>>>> ... huh, with 1000 workers 'real' time should still be ~10 seconds
+time -p ./64103-justincarlson32/2021-Spring-Pthreads/feedback/par_sumsq ./test-04.txt 1000 2>&1
+5 5 0 1
+real 10.08
+user 0.01
+sys 0.11
+>>>> ... (you will have more overhead, but should still be just above 10 sec)
+==== ... all tests done
+==== (all done) ====
